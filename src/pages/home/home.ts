@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from 'ionic-angular';
-import { Http, Response } from '@angular/http';
 import { ProductProvider } from "../../providers/product/product"
+import { ProductDetailPage } from '../product-detail/product-detail';
 import 'rxjs/add/operator/map';
 
 @Component({
@@ -10,13 +10,23 @@ import 'rxjs/add/operator/map';
 })
 export class HomePage {
 
-  constructor(private productProvider: ProductProvider, private http: Http, public navCtrl: NavController) {
+  public allProducts = [];
+
+  constructor(private productProvider: ProductProvider, public navCtrl: NavController) {
 
   }
 
   ionViewDidLoad() {
     this.productProvider.getProducts()
-      .subscribe(response => console.log(response));
+      .subscribe((response) => {
+        this.allProducts = response;
+      });
+  }
+
+  goToProductDetailPage(product: any) {
+    this.navCtrl.push(ProductDetailPage, {
+      productDetails: product
+    });
   }
 
 }
