@@ -12,6 +12,8 @@ import 'rxjs/add/operator/map';
 export class HomePage {
 
   public allProducts = [];
+  private femaleSelected = true;
+  private maleSelected = true;
 
   constructor(private modalController: ModalController, private productProvider: ProductProvider, public navCtrl: NavController) {
 
@@ -31,8 +33,41 @@ export class HomePage {
   }
 
   openFilterModal() {
-    let openFilterModal = this.modalController.create(FilterModalPage);
+    let filterStateFromMainPage = {
+      femaleSelected: this.femaleSelected,
+      maleSelected: this.maleSelected
+    };
+    let openFilterModal = this.modalController.create(FilterModalPage, filterStateFromMainPage);
+    openFilterModal.onDidDismiss((filterState)=>{
+      this.femaleSelected = filterState.femaleSelected;
+      this.maleSelected = filterState.maleSelected;
+      this.productProvider.getProducts()
+        .subscribe((allProducts) => {
+          let products = allProducts;
+
+          if (filterState.femaleSelected && filterState.maleSelected) {
+            this.allProducts = products;
+            return;
+
+          } else if (!filterState.femaleSelected && !filterState.maleSelected) {
+            this.allProducts = [];
+            return;
+
+          } else if (filterState.femaleSelected && !filterState.maleSelected) {
+            this.allProducts = products.filter((product) => {
+              return product.gender !== "male";
+            });
+
+          } else {
+            this.allProducts = products.filter((product) => {
+              return product.gender !== "female";
+            });
+          }
+        });
+    });
     openFilterModal.present();
   }
+
+
 
 }
